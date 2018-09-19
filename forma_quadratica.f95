@@ -61,17 +61,7 @@ PROGRAM forma_quadratica
    WRITE(*,FMT=*)"b=",b
 
  
-   xT = CALL transposta(10,A)
-   
-   FUNCTION vec(A,b,bT,c,x,xT,y)
-
-      REAL(KIND=DP), INTENT(IN):: c
-      REAL(KIND=DP), DIMENSION(:), ALLOCATABLE, INTENT(IN):: b, bT, x, xT 
-      REAL(KIND=DP), DIMENSION(:,:), ALLOCATABLE, INTENT(IN):: A 
-      REAL(KIND=DP), DIMENSION(:), ALLOCATABLE, INTENT(OUT):: y 
-    
-        y=((xT)/2)*A*x-bT*x+c  
-   END FUNCTION vec
+   xT = CALL transpostaM(10,x)
 
   CALL CPU_TIME(final)
 
@@ -81,7 +71,7 @@ PROGRAM forma_quadratica
 
   CONTAINS
 
-  SUBROUTINE transposta(n,A)
+  SUBROUTINE transpostaM(n,A)
   IMPLICIT NONE
   INTEGER(KIND=SP), INTENT(IN):: n  !n, dimensão da matriz
   INTEGER(KIND=SP):: i, j
@@ -95,7 +85,39 @@ PROGRAM forma_quadratica
       ENDDO
     ENDDO
 
-END SUBROUTINE transposta
+END SUBROUTINE transpostaM
+
+SUBROUTINE transpostaV(n,xT)
+IMPLICIT NONE
+INTEGER(KIND=SP), INTENT(IN):: n  !n, dimensão da matriz
+INTEGER(KIND=SP):: i
+REAL(KIND=DP), DIMENSION(:), ALLOCATABLE, INTENT(OUT):: xT !A é a matriz de entrada. Ela vai ser reescrita no processo
+
+ALLOCATE(xT(n))
+
+  DO i=1,n
+      xT(i,:) = xT(:,i)
+  ENDDO
+
+END SUBROUTINE transpostaV
+
+
+ REAL FUNCTION vec(A,b,bT,c,x,xT,y)
+
+   REAL(KIND=DP), INTENT(IN):: c
+   REAL(KIND=DP), DIMENSION(:), ALLOCATABLE, INTENT(IN):: b, bT, x, xT 
+   REAL(KIND=DP), DIMENSION(:,:), ALLOCATABLE, INTENT(IN):: A 
+   REAL(KIND=DP), DIMENSION(:), ALLOCATABLE, INTENT(OUT):: y 
+ 
+
+     DO i=1,n
+      DO j=1,n      
+        y(j)=((xT(j))/2)*A(i,j)*x(j)-bT(i,j)*x(i)+c
+      END DO 
+     END DO   
+
+ END FUNCTION vec
+
 
 
 END PROGRAM forma_quadratica
