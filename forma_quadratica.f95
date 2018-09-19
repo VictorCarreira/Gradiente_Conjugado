@@ -26,17 +26,16 @@ PROGRAM forma_quadratica
 
   INTEGER(KIND=SP):: i,j
 
-  REAL(KIND=DP)::inicio,final, TM
-  REAL(KIND=DP), PARAMETER::c=0.0
+  REAL(KIND=DP)::inicio,final, TM, c
 
-  REAL(KIND=DP), ALLOCATABLE, DIMENSION(:):: b, y, x, xT
+  REAL(KIND=DP), ALLOCATABLE, DIMENSION(:):: b, bT, x, xT, y
   REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:):: A
   
   CALL CPU_TIME(inicio)
 
 
   
-  ALLOCATE(A(2,2),b(2),x(10),y(10))
+  ALLOCATE(A(2,2),b(2),bT(10),x(10),xT(10),y(10))
   
 
    !OPEN(1,FILE='entrada.txt')
@@ -54,14 +53,26 @@ PROGRAM forma_quadratica
    b(1)=2.0
    b(2)=-8.0
 
+   ! preenchendo o escalar
+
+   c=0.0
+
    WRITE(*,FMT=*)"A=",A
    WRITE(*,FMT=*)"b=",b
 
  
-   CALL transposta(10,A)
- 
-   !y=(xT)/2 Ax-bTx+c  
+   xT = CALL transposta(10,A)
+   
+   FUNCTION vec(A,b,bT,c,x,xT,y)
+
+      REAL(KIND=DP), INTENT(IN):: c
+      REAL(KIND=DP), DIMENSION(:), ALLOCATABLE, INTENT(IN):: b, bT, x, xT 
+      REAL(KIND=DP), DIMENSION(:,:), ALLOCATABLE, INTENT(IN):: A 
+      REAL(KIND=DP), DIMENSION(:), ALLOCATABLE, INTENT(OUT):: y 
     
+        y=((xT)/2)*A*x-bT*x+c  
+   END FUNCTION vec
+
   CALL CPU_TIME(final)
 
   TM=final-inicio
