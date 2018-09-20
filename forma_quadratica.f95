@@ -24,18 +24,18 @@ PROGRAM forma_quadratica
   INTEGER, PARAMETER::SP = SELECTED_INT_KIND(r=8)
   INTEGER, PARAMETER::DP = SELECTED_REAL_KIND(12,100)
 
-  INTEGER(KIND=SP):: i,j
+  INTEGER(KIND=SP):: n
 
   REAL(KIND=DP)::inicio,final, TM, c
 
-  REAL(KIND=DP), ALLOCATABLE, DIMENSION(:):: b, bT, x, xT, y
-  REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:):: A
+  REAL(KIND=DP), ALLOCATABLE, DIMENSION(:):: b, x, y
+  REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:):: A, bt, xt
   
   CALL CPU_TIME(inicio)
 
-
+  n=10
   
-  ALLOCATE(A(2,2),b(2),bT(10),x(10),xT(10),y(10))
+  ALLOCATE(A(2,2),b(2),bt(n,n),x(n),xt(n,n),y(n))
   
 
    !OPEN(1,FILE='entrada.txt')
@@ -60,9 +60,14 @@ PROGRAM forma_quadratica
    WRITE(*,FMT=*)"A=",A
    WRITE(*,FMT=*)"b=",b
 
- 
-   xT = CALL transpostaM(10,x)
+  CALL transpostaV(n,bt)
 
+  CALL transpostaV(n,xt)
+
+  CALL vec(A,bt,b,c,x,xt,n,y)
+
+  WRITE(*,*)'y=',y
+    
   CALL CPU_TIME(final)
 
   TM=final-inicio
@@ -87,38 +92,19 @@ PROGRAM forma_quadratica
 
 END SUBROUTINE transpostaM
 
-SUBROUTINE transpostaV(n,xT)
+SUBROUTINE transpostaV(n,At)
 IMPLICIT NONE
 INTEGER(KIND=SP), INTENT(IN):: n  !n, dimensão da matriz
 INTEGER(KIND=SP):: i
-REAL(KIND=DP), DIMENSION(:), ALLOCATABLE, INTENT(OUT):: xT !A é a matriz de entrada. Ela vai ser reescrita no processo
+REAL(KIND=DP), DIMENSION(:,:), ALLOCATABLE, INTENT(OUT):: At !A é a matriz de entrada. Ela vai ser reescrita no processo
+REAL(KIND=DP), DIMENSION(:,:), ALLOCATABLE:: A
 
-ALLOCATE(xT(n))
+ALLOCATE(A(1,n),At(n,1))
 
   DO i=1,n
-      xT(i,:) = xT(:,i)
+      At(:,i) = A(i,:)
   ENDDO
 
 END SUBROUTINE transpostaV
 
-
- REAL FUNCTION vec(A,b,bT,c,x,xT,y)
-
-   REAL(KIND=DP), INTENT(IN):: c
-   REAL(KIND=DP), DIMENSION(:), ALLOCATABLE, INTENT(IN):: b, bT, x, xT 
-   REAL(KIND=DP), DIMENSION(:,:), ALLOCATABLE, INTENT(IN):: A 
-   REAL(KIND=DP), DIMENSION(:), ALLOCATABLE, INTENT(OUT):: y 
- 
-
-     DO i=1,n
-      DO j=1,n      
-        y(j)=((xT(j))/2)*A(i,j)*x(j)-bT(i,j)*x(i)+c
-      END DO 
-     END DO   
-
- END FUNCTION vec
-
-
-
 END PROGRAM forma_quadratica
-
